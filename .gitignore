@@ -1,0 +1,29 @@
+# ========================================================================
+# HIPAA / PHI Security Guard — NEVER commit patient PDFs or Key Vaults
+# ========================================================================
+*.pdf
+*.PDF
+*reid_key_vault*.json
+*reid_key_vault*.enc.json
+output_deidentified/
+webapp_workspace/
+
+# Local distribution archives (may contain sample outputs)
+*.zip
+
+# Python & Portable Runtime artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.venv*/
+venv/
+env/
+_runtime/
+_app_payload.zip
+build/
+dist/
+*.spec
+
+# OS metadata
+.DS_Store
+Thumbs.db

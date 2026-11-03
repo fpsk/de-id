@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- MANDATORY: Declare support for both light and dark themes -->
+  <meta name="color-scheme" content="light dark">
+  <script>
+  {
+    const savedScheme = localStorage.getItem("color-scheme");
+    if (savedScheme) {
+      document.querySelector('meta[name="color-scheme"]').content = savedScheme;
+      document.documentElement.dataset.theme = savedScheme;
+    }
+  }
+  </script>
+  <title>HIPAA Safe Harbor PDF De-Identification & Reversal Studio (Local Non-LLM)</title>
+  <style>
+    :root {
+      --bg-canvas-light: #f4f6fb;
+      --bg-canvas-dark: #0f141d;
+      --bg-surface-light: #ffffff;
+      --bg-surface-dark: #18202f;
+      --bg-elevated-light: #eef2f9;
+      --bg-elevated-dark: #212b3f;
+      --text-primary-light: #111827;
+      --text-primary-dark: #f3f4f6;
+      --text-muted-light: #4b5563;
+      --text-muted-dark: #9ca3af;
+      --border-light: #d1d9e6;
+      --border-dark: #2e3a52;
+      --brand-light: #1d4ed8;
+      --brand-dark: #60a5fa;
+      --brand-text-light: #ffffff;
+      --brand-text-dark: #0b1325;
+      --success-light: #15803d;
+      --success-dark: #4ade80;
+      --danger-light: #b91c1c;
+      --danger-dark: #f87171;
+      --scrollbar-track-light: #e5e7eb;
+      --scrollbar-track-dark: #18202f;
+      --scrollbar-thumb-light: #9ca3af;
+      --scrollbar-thumb-dark: #4b5563;
+
+      /* Fallback for browsers without light-dark() support */
+      --bg-canvas: var(--bg-canvas-light);
+      --bg-surface: var(--bg-surface-light);
+      --bg-elevated: var(--bg-elevated-light);
+      --text-primary: var(--text-primary-light);
+      --text-muted: var(--text-muted-light);
+      --border-color: var(--border-light);
+      --brand: var(--brand-light);
+      --brand-text: var(--brand-text-light);
+      --success: var(--success-light);
+      --danger: var(--danger-light);
+      --scrollbar-track: var(--scrollbar-track-light);
+      --scrollbar-thumb: var(--scrollbar-thumb-light);
+
+      @media (prefers-color-scheme: dark) {
+        --bg-canvas: var(--bg-canvas-dark);
+        --bg-surface: var(--bg-surface-dark);
+        --bg-elevated: var(--bg-elevated-dark);
+        --text-primary: var(--text-primary-dark);
+        --text-muted: var(--text-muted-dark);
+        --border-color: var(--border-dark);
+        --brand: var(--brand-dark);
+        --brand-text: var(--brand-text-dark);
+        --success: var(--success-dark);
+        --danger: var(--danger-dark);
+        --scrollbar-track: var(--scrollbar-track-dark);
+        --scrollbar-thumb: var(--scrollbar-thumb-dark);
+      }
+
+      /* Modern light-dark() resolution */
+      --bg-canvas: light-dark(var(--bg-canvas-light), var(--bg-canvas-dark));
+      --bg-surface: light-dark(var(--bg-surface-light), var(--bg-surface-dark));
+      --bg-elevated: light-dark(var(--bg-elevated-light), var(--bg-elevated-dark));
+      --text-primary: light-dark(var(--text-primary-light), var(--text-primary-dark));
+      --text-muted: light-dark(var(--text-muted-light), var(--text-muted-dark));
+      --border-color: light-dark(var(--border-light), var(--border-dark));
+      --brand: light-dark(var(--brand-light), var(--brand-dark));
+      --brand-text: light-dark(var(--brand-text-light), var(--brand-text-dark));
+      --success: light-dark(var(--success-light), var(--success-dark));
+      --danger: light-dark(var(--danger-light), var(--danger-dark));
+      --scrollbar-track: light-dark(var(--scrollbar-track-light), var(--scrollbar-track-dark));
+      --scrollbar-thumb: light-dark(var(--scrollbar-thumb-light), var(--scrollbar-thumb-dark));
+
+      color-scheme: light dark;
+      accent-color: var(--brand);
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    }
+
+    html[data-theme="light"] {
+      color-scheme: light;
+    }
+    html[data-theme="dark"] {
+      color-scheme: dark;
+    }
+
+    @supports not (scrollbar-color: auto) {
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb);
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--scrollbar-track);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header.app-header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .shield-badge {
+      background-color: var(--brand);
+      color: var(--brand-text);
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+    }
+
+    .app-title {
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .app-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .tab-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      padding: 0.5rem 0.95rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background-color: var(--brand);
+      color: var(--brand-text);
+    }
+
+    .btn {
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 0.48rem 0.85rem;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      filter: brightness(0.96);
+    }
+
+    .btn-primary {
+      background-color: var(--brand);
+      color: var(--brand-text);
+      border-color: var(--brand);
+    }
+
+    .tab-panel {
+      display: none;
+      flex: 1;
+      padding: 1rem 1.25rem;
+      gap: 1rem;
+    }
+
+    .tab-panel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toolbar-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.85rem;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .input-ctrl, select.input-ctrl {
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 0.44rem 0.68rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 270px 1fr 410px;
+      gap: 1rem;
+      flex: 1;
+      min-height: 620px;
+    }
+
+    @media (max-width: 1180px) {
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 0.7rem 0.9rem;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 700;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--bg-elevated);
+    }
+
+    .panel-body {
+      padding: 0.75rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .doc-item {
+      padding: 0.65rem 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .doc-item.active {
+      border-color: var(--brand);
+      background-color: var(--bg-elevated);
+    }
+
+    .doc-item-title {
+      font-size: 0.84rem;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .doc-item-meta {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Center PDF Viewer with Interactive SVG Overlay */
+    .pdf-stage {
+      background-color: #1e222a;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 1rem;
+      overflow: auto;
+      flex: 1;
+    }
+
+    .pdf-page-wrapper {
+      position: relative;
+      display: inline-block;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+      border-radius: 4px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .pdf-page-wrapper img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .pdf-overlay-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .phi-bbox-rect {
+      cursor: pointer;
+      stroke-width: 1.8;
+      transition: fill-opacity 0.15s ease;
+    }
+
+    .phi-bbox-rect:hover {
+      fill-opacity: 0.45;
+    }
+
+    /* Right Table of PHI Matches */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.81rem;
+    }
+
+    table.data-table th,
+    table.data-table td {
+      padding: 0.48rem 0.55rem;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+    }
+
+    table.data-table th {
+      position: sticky;
+      top: 0;
+      background-color: var(--bg-elevated);
+      z-index: 1;
+      font-weight: 700;
+    }
+
+    table.data-table tr.phi-row {
+      cursor: pointer;
+    }
+
+    table.data-table tr.phi-row:hover {
+      background-color: var(--bg-elevated);
+    }
+
+    table.data-table tr.phi-row.disabled {
+      opacity: 0.48;
+      text-decoration: line-through;
+    }
+
+    .cat-pill {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .results-banner {
+      background-color: var(--bg-surface);
+      border: 2px solid var(--brand);
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .results-banner.visible {
+      display: flex;
+    }
+
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      flex: 1;
+    }
+
+    @media (max-width: 960px) {
+      .two-col-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    textarea.code-area {
+      width: 100%;
+      min-height: 220px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.84rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+      resize: vertical;
+    }
+
+    /* Modal Dialog with Light Dismiss (modern-web-guidance: light-dismiss-a-dialog) */
+    dialog {
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      background-color: var(--bg-surface);
+      color: var(--text-primary);
+      padding: 1.25rem;
+      max-width: 440px;
+      width: 92%;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    dialog::backdrop {
+      background-color: rgba(0, 0, 0, 0.52);
+      backdrop-filter: blur(2px);
+    }
+
+    /* Toast Notifications (modern-web-guidance: persistent-toast-notifications) */
+    #toastStack {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      pointer-events: none;
+    }
+
+    .toast-item[popover] {
+      position: static;
+      margin: 0;
+      inset: auto;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-surface);
+      color: var(--text-primary);
+      padding: 0.7rem 1rem;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+      pointer-events: auto;
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .toast-item[popover]:is(:popover-open, .\:popover-open),
+    .toast-item.fallback-open {
+      display: flex;
+    }
+
+    .toast-item + .toast-item {
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div class="brand-group">
+      <span class="shield-badge">HIPAA SAFE HARBOR · LOCAL NON-LLM</span>
+      <div>
+        <h1 class="app-title">Clinical PDF De-Identification & Reversal Studio</h1>
+        <p class="app-subtitle">100% Offline Deterministic Engine · Physical PDF Stream Scrubbing · Reversible Key Vault</p>
+      </div>
+    </div>
+
+    <nav class="nav-tabs" aria-label="Main Navigation">
+      <button class="tab-btn active" onclick="switchTab('deid', this)">1. Batch De-Identify & Visual Studio</button>
+      <button class="tab-btn" onclick="switchTab('reverse', this)">2. Reverse PDF / Re-Identify Cloud Output</button>
+      <button class="tab-btn" onclick="switchTab('vault', this)">3. Key Vault Inspector & Audit</button>
+      <button class="btn" id="themeToggleBtn" onclick="toggleColorScheme()" title="Toggle Light/Dark Mode">Theme</button>
+    </nav>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- TAB 1: BATCH DE-IDENTIFY & VISUAL STUDIO                              -->
+  <!-- ===================================================================== -->
+  <section id="tab-deid" class="tab-panel active">
+    <div class="toolbar-card">
+      <div class="toolbar-group">
+        <label class="btn" for="pdfFileInput">
+          + Upload PDF(s)
+          <input id="pdfFileInput" type="file" accept=".pdf" multiple hidden onchange="uploadPDFs(this.files)">
+        </label>
+        <button class="btn" onclick="openCustomPhraseModal()">+ Add Custom Phrase</button>
+        <span style="font-size:0.83rem;color:var(--text-muted);">Date Mode:</span>
+        <select id="dateModeSelect" class="input-ctrl">
+          <option value="mask">Safe Harbor Mask (YYYY-XX-XX / YYYY-DATE-NN)</option>
+          <option value="shift">Patient-Consistent Date Shift (±Days)</option>
+        </select>
+        <input id="batchVaultPassword" type="password" class="input-ctrl" placeholder="Optional Vault Password (AES-256)" style="width:225px;">
+      </div>
+
+      <div class="toolbar-group">
+        <button class="btn btn-primary" onclick="runBatchDeidentify()">
+          Run Batch De-Identification & Generate Key Vault
+        </button>
+      </div>
+    </div>
+
+    <!-- Batch Output Download Banner -->
+    <div id="batchResultsBanner" class="results-banner">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+        <div>
+          <strong>Batch De-Identification Complete!</strong>
+          <span id="batchResultsSummary" style="font-size:0.85rem;color:var(--text-muted);margin-left:0.5rem;"></span>
+        </div>
+        <div id="batchDownloadLinks" class="toolbar-group"></div>
+      </div>
+    </div>
+
+    <div class="workspace-grid">
+      <!-- Left: PDF Batch Queue -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <span>PDF Batch Queue</span>
+          <span id="queueCountBadge" style="font-size:0.78rem;color:var(--text-muted);">0 files</span>
+        </div>
+        <div class="panel-body" id="docQueueList"></div>
+      </div>
+
+      <!-- Center: Interactive PDF Page Preview with SVG Bounding Boxes -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div class="toolbar-group">
+            <button class="btn" onclick="changePage(-1)">◀ Prev</button>
+            <span id="pageIndicator">Page 1 / 1</span>
+            <button class="btn" onclick="changePage(1)">Next ▶</button>
+          </div>
+          <span id="activeMatchesBadge" style="font-size:0.8rem;color:var(--text-muted);"></span>
+        </div>
+        <div class="pdf-stage">
+          <div class="pdf-page-wrapper" id="pdfPageWrapper">
+            <img id="pdfPageImage" alt="PDF Page Preview" src="">
+            <svg id="pdfOverlaySvg" class="pdf-overlay-svg"></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Detected PHI Entities Table -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <span>Detected PHI Entities (Click to Jump / Toggle)</span>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>On</th>
+                <th>Pg</th>
+                <th>Category</th>
+                <th>Original PHI</th>
+                <th>Token</th>
+              </tr>
+            </thead>
+            <tbody id="phiTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- TAB 2: REVERSE PDF / RE-IDENTIFY CLOUD ANALYSIS                       -->
+  <!-- ===================================================================== -->
+  <section id="tab-reverse" class="tab-panel">
+    <div class="toolbar-card">
+      <div class="toolbar-group">
+        <div>
+          <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.2rem;">1. Re-ID Key Vault (.json / .enc.json):</label>
+          <input id="revVaultFile" type="file" accept=".json" class="input-ctrl">
+          <small style="color:var(--text-muted);display:block;margin-top:0.15rem;">Leave empty to use latest generated vault on disk</small>
+        </div>
+        <div>
+          <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.2rem;">2. De-Identified PDF or Cloud File (.pdf/.csv/.json/.md/.txt):</label>
+          <input id="revTargetFile" type="file" accept=".pdf,.csv,.json,.md,.txt,.tsv,.html" class="input-ctrl">
+          <select id="presetDeidSelect" class="input-ctrl" style="margin-top:0.2rem;display:block;">
+            <option value="">-- Or pick processed De-Identified PDF on disk --</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.2rem;">3. Vault Password (if encrypted):</label>
+          <input id="revPassword" type="password" class="input-ctrl" placeholder="Optional password">
+        </div>
+      </div>
+      <div class="toolbar-group">
+        <button class="btn btn-primary" onclick="runReversal()">Combine & Reverse / Re-Identify Now</button>
+      </div>
+    </div>
+
+    <div class="two-col-grid">
+      <div class="panel-card">
+        <div class="panel-header">
+          <span>Paste Cloud Analysis Output (Optional Quick Text Re-ID)</span>
+          <button class="btn" onclick="fillSampleCloudText()">Load Sample Cloud Summary</button>
+        </div>
+        <div class="panel-body" style="display:flex;flex-direction:column;gap:0.75rem;">
+          <textarea id="cloudInputText" class="code-area" placeholder="Paste cloud analysis text, Markdown, JSON, or CSV containing pseudonym tokens (e.g. PAT-1D7030, MRN-1D7030, ORD-1D7030-01)..."></textarea>
+          <div id="reversalDownloadBar" class="toolbar-group"></div>
+          <label style="font-weight:700;font-size:0.85rem;">Re-Identified Output / Reversal Log:</label>
+          <textarea id="cloudOutputText" class="code-area" readonly placeholder="Re-identified patient report or PDF restoration log will appear here..."></textarea>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-header">
+          <span>Restored Original PDF Visual Preview</span>
+          <div class="toolbar-group">
+            <button class="btn" onclick="changeRestoredPage(-1)">◀ Prev</button>
+            <span id="restoredPageIndicator">Page 1</span>
+            <button class="btn" onclick="changeRestoredPage(1)">Next ▶</button>
+          </div>
+        </div>
+        <div class="pdf-stage">
+          <div class="pdf-page-wrapper">
+            <img id="restoredPdfImage" alt="Restored PDF Preview" src="" style="display:none;">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- TAB 3: KEY VAULT INSPECTOR & HIPAA AUDIT                              -->
+  <!-- ===================================================================== -->
+  <section id="tab-vault" class="tab-panel">
+    <div class="toolbar-card">
+      <div class="toolbar-group">
+        <input id="inspectVaultFile" type="file" accept=".json" class="input-ctrl">
+        <input id="inspectVaultPassword" type="password" class="input-ctrl" placeholder="Vault password (if encrypted)">
+        <button class="btn btn-primary" onclick="loadVaultInspector()">Load / Refresh Key Vault</button>
+      </div>
+      <div class="toolbar-group">
+        <button class="btn" onclick="exportVaultCsv()">Export Crosswalk CSV</button>
+      </div>
+    </div>
+
+    <div class="panel-card" style="flex:1;">
+      <div class="panel-header">
+        <span id="vaultInspectorHeader">Re-Identification Crosswalk Table</span>
+      </div>
+      <div class="panel-body" style="padding:0;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Patient Token</th>
+              <th>Pseudonym Token</th>
+              <th>Original PHI Value(s)</th>
+              <th>Original Filename</th>
+              <th>De-Identified Filename</th>
+              <th>SHA-256 Integrity (De-ID)</th>
+            </tr>
+          </thead>
+          <tbody id="vaultTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL DIALOG FOR CUSTOM PHRASE (light-dismiss-a-dialog)               -->
+  <!-- ===================================================================== -->
+  <dialog id="customPhraseDialog" closedby="any" aria-labelledby="customPhraseTitle">
+    <form method="dialog" onsubmit="submitCustomPhrase(event)">
+      <h3 id="customPhraseTitle" style="margin-top:0;">Add Custom Redaction Phrase</h3>
+      <p style="font-size:0.85rem;color:var(--text-muted);">
+        Enter any name, identifier, or phrase to redact across all pages of the current document.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:0.65rem;margin-bottom:1rem;">
+        <input id="customPhraseInput" type="text" class="input-ctrl" placeholder="e.g., Douglas Lin" required>
+        <select id="customCategoryInput" class="input-ctrl">
+          <option value="CUSTOM_PHI">CUSTOM_PHI</option>
+          <option value="PATIENT_NAME">PATIENT_NAME</option>
+          <option value="PHYSICIAN">PHYSICIAN</option>
+          <option value="MRN">MRN</option>
+          <option value="FACILITY">FACILITY</option>
+        </select>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+        <button type="button" class="btn" onclick="document.getElementById('customPhraseDialog').close()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Redact Across Document</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===================================================================== -->
+  <!-- TOAST NOTIFICATION STACK (persistent-toast-notifications)             -->
+  <!-- ===================================================================== -->
+  <div id="toastStack" aria-live="polite"></div>
+
+  <script>
+    const CATEGORY_COLORS = {
+      PATIENT_NAME: "#e53935",
+      DOB: "#fb8c00",
+      MRN: "#8e24aa",
+      ORDER_ID: "#1e88e5",
+      SPECIMEN_ID: "#00897b",
+      PHYSICIAN: "#3949ab",
+      FACILITY: "#43a047",
+      FACILITY_ID: "#2e7d32",
+      REPORT_DATE: "#f4511e",
+      COLLECTION_DATE: "#fb8c00",
+      RECEIVED_DATE: "#ffa000",
+      DATE: "#f57c00",
+      CUSTOM_PHI: "#d81b60"
+    };
+
+    let documents = [];
+    let currentDoc = null;
+    let currentPage = 0;
+    let restoredPdfFilename = "";
+    let restoredPage = 0;
+    let restoredTotalPages = 1;
+    let currentVaultData = null;
+
+    // Fallback for browsers without <dialog closedby="any"> support
+    const phraseDialog = document.getElementById("customPhraseDialog");
+    if (!("closedBy" in HTMLDialogElement.prototype)) {
+      phraseDialog.addEventListener("click", (event) => {
+        if (event.target !== phraseDialog) return;
+        const rect = phraseDialog.getBoundingClientRect();
+        const isDialogContent = (
+          rect.top <= event.clientY &&
+          event.clientY <= rect.top + rect.height &&
+          rect.left <= event.clientX &&
+          event.clientX <= rect.left + rect.width
+        );
+        if (isDialogContent) return;
+        phraseDialog.close();
+      });
+    }
+
+    // Two-state color-scheme toggle (modern-web-guidance: dark-mode)
+    function toggleColorScheme() {
+      const meta = document.querySelector('meta[name="color-scheme"]');
+      const sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const current = localStorage.getItem("color-scheme");
+      let next;
+      if (!current) {
+        next = sysDark ? "light" : "dark";
+      } else {
+        const expectedOpposite = sysDark ? "light" : "dark";
+        if (current === expectedOpposite) {
+          next = null; // return to system setting
+        } else {
+          next = expectedOpposite;
+        }
+      }
+      if (next) {
+        localStorage.setItem("color-scheme", next);
+        meta.content = next;
+        document.documentElement.dataset.theme = next;
+        showToast(`Theme pinned to ${next} mode`);
+      } else {
+        localStorage.removeItem("color-scheme");
+        meta.content = "light dark";
+        delete document.documentElement.dataset.theme;
+        showToast("Theme restored to system preference");
+      }
+    }
+
+    // Persistent manual popover toast notifications (modern-web-guidance: persistent-toast-notifications)
+    function showToast(message) {
+      const stack = document.getElementById("toastStack");
+      const toast = document.createElement("div");
+      toast.className = "toast-item";
+      toast.setAttribute("popover", "manual");
+      toast.innerHTML = `<span>${message}</span>`;
+      const closeBtn = document.createElement("button");
+      closeBtn.className = "btn";
+      closeBtn.style.padding = "0.15rem 0.45rem";
+      closeBtn.textContent = "×";
+      closeBtn.onclick = () => dismissToast(toast);
+      toast.appendChild(closeBtn);
+      stack.appendChild(toast);
+
+      if ("popover" in HTMLElement.prototype && typeof toast.showPopover === "function") {
+        toast.showPopover();
+      } else {
+        toast.classList.add("fallback-open");
+      }
+      setTimeout(() => dismissToast(toast), 3500);
+    }
+
+    function dismissToast(toast) {
+      if (!toast.isConnected) return;
+      try {
+        if ("popover" in HTMLElement.prototype && typeof toast.hidePopover === "function") {
+          toast.hidePopover();
+        }
+      } catch (_) {}
+      toast.remove();
+    }
+
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById(`tab-${tabId}`).classList.add("active");
+      btnEl.classList.add("active");
+      if (tabId === "vault") {
+        loadVaultInspector();
+      }
+    }
+
+    async function fetchDocuments() {
+      const res = await fetch("/api/documents");
+      const data = await res.json();
+      documents = data.documents || [];
+      renderDocQueue();
+      if (documents.length > 0 && !currentDoc) {
+        selectDocument(documents[0].doc_id);
+      }
+    }
+
+    function renderDocQueue() {
+      const list = document.getElementById("docQueueList");
+      document.getElementById("queueCountBadge").textContent = `${documents.length} file(s)`;
+      list.innerHTML = "";
+      documents.forEach(doc => {
+        const div = document.createElement("div");
+        div.className = `doc-item ${currentDoc && currentDoc.doc_id === doc.doc_id ? "active" : ""}`;
+        div.onclick = () => selectDocument(doc.doc_id);
+        div.innerHTML = `
+          <div class="doc-item-title">${doc.filename}</div>
+          <div class="doc-item-meta">
+            <span>${doc.page_count} pages · ${doc.active_matches} PHI spans</span>
+            <span style="font-weight:700;color:var(--brand);">${doc.patient_token_preview}</span>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function selectDocument(docId) {
+      currentDoc = documents.find(d => d.doc_id === docId) || null;
+      currentPage = 0;
+      renderDocQueue();
+      renderCurrentPage();
+      renderPhiTable();
+    }
+
+    function changePage(delta) {
+      if (!currentDoc) return;
+      const next = currentPage + delta;
+      if (next >= 0 && next < currentDoc.page_count) {
+        currentPage = next;
+        renderCurrentPage();
+      }
+    }
+
+    function renderCurrentPage() {
+      if (!currentDoc) return;
+      document.getElementById("pageIndicator").textContent = `Page ${currentPage + 1} / ${currentDoc.page_count}`;
+      document.getElementById("activeMatchesBadge").textContent =
+        `Active Redactions: ${currentDoc.active_matches} / ${currentDoc.total_matches}`;
+
+      const img = document.getElementById("pdfPageImage");
+      const svg = document.getElementById("pdfOverlaySvg");
+      const [pageW, pageH] = currentDoc.page_sizes[currentPage];
+      svg.setAttribute("viewBox", `0 0 ${pageW} ${pageH}`);
+      svg.innerHTML = "";
+
+      img.src = `/api/documents/${currentDoc.doc_id}/page/${currentPage}/image`;
+
+      const pageMatches = currentDoc.matches.filter(m => m.page_num === currentPage);
+      pageMatches.forEach(m => {
+        const [x0, y0, x1, y1] = m.bbox;
+        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        rect.setAttribute("x", x0);
+        rect.setAttribute("y", y0);
+        rect.setAttribute("width", Math.max(2, x1 - x0));
+        rect.setAttribute("height", Math.max(2, y1 - y0));
+        rect.setAttribute("rx", "2");
+        rect.setAttribute("class", "phi-bbox-rect");
+
+        const color = CATEGORY_COLORS[m.category] || "#e53935";
+        if (m.enabled) {
+          rect.setAttribute("fill", color);
+          rect.setAttribute("fill-opacity", "0.24");
+          rect.setAttribute("stroke", color);
+        } else {
+          rect.setAttribute("fill", "#9ca3af");
+          rect.setAttribute("fill-opacity", "0.1");
+          rect.setAttribute("stroke", "#9ca3af");
+          rect.setAttribute("stroke-dasharray", "3,3");
+        }
+        rect.innerHTML = `<title>[${m.category}] ${m.raw_value} → ${m.token} (Click to toggle)</title>`;
+        rect.onclick = () => toggleMatch(m.index);
+        svg.appendChild(rect);
+      });
+    }
+
+    function renderPhiTable() {
+      const tbody = document.getElementById("phiTableBody");
+      tbody.innerHTML = "";
+      if (!currentDoc) return;
+
+      currentDoc.matches.forEach(m => {
+        const tr = document.createElement("tr");
+        tr.className = `phi-row ${m.enabled ? "" : "disabled"}`;
+        const color = CATEGORY_COLORS[m.category] || "#e53935";
+        tr.innerHTML = `
+          <td><input type="checkbox" ${m.enabled ? "checked" : ""} onclick="event.stopPropagation(); toggleMatch(${m.index});"></td>
+          <td>${m.page_num + 1}</td>
+          <td><span class="cat-pill" style="background-color:${color};">${m.category}</span></td>
+          <td>${m.raw_value}</td>
+          <td style="font-family:monospace;font-weight:600;">${m.token}</td>
+        `;
+        tr.onclick = () => {
+          if (currentPage !== m.page_num) {
+            currentPage = m.page_num;
+            renderCurrentPage();
+          }
+        };
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function toggleMatch(index) {
+      if (!currentDoc) return;
+      const res = await fetch(`/api/documents/${currentDoc.doc_id}/toggle_match`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ index })
+      });
+      const updated = await res.json();
+      const idx = documents.findIndex(d => d.doc_id === updated.doc_id);
+      if (idx !== -1) documents[idx] = updated;
+      currentDoc = updated;
+      renderDocQueue();
+      renderCurrentPage();
+      renderPhiTable();
+    }
+
+    async function uploadPDFs(fileList) {
+      if (!fileList || fileList.length === 0) return;
+      const formData = new FormData();
+      for (const f of fileList) {
+        formData.append("files", f);
+      }
+      showToast(`Uploading and scanning ${fileList.length} PDF(s)...`);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      documents = data.documents || [];
+      if (data.added && data.added.length > 0) {
+        selectDocument(data.added[0].doc_id);
+        showToast(`Added ${data.added.length} PDF(s) to queue`);
+      }
+    }
+
+    function openCustomPhraseModal() {
+      if (!currentDoc) return;
+      document.getElementById("customPhraseInput").value = "";
+      phraseDialog.showModal();
+    }
+
+    async function submitCustomPhrase(event) {
+      event.preventDefault();
+      if (!currentDoc) return;
+      const phrase = document.getElementById("customPhraseInput").value.trim();
+      const category = document.getElementById("customCategoryInput").value;
+      if (!phrase) return;
+
+      const res = await fetch(`/api/documents/${currentDoc.doc_id}/custom_phrase`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phrase, category })
+      });
+      const data = await res.json();
+      phraseDialog.close();
+      if (data.document) {
+        const idx = documents.findIndex(d => d.doc_id === data.document.doc_id);
+        if (idx !== -1) documents[idx] = data.document;
+        currentDoc = data.document;
+        renderDocQueue();
+        renderCurrentPage();
+        renderPhiTable();
+        showToast(`Marked ${data.added_count} occurrence(s) of "${phrase}"`);
+      }
+    }
+
+    async function runBatchDeidentify() {
+      const dateMode = document.getElementById("dateModeSelect").value;
+      const password = document.getElementById("batchVaultPassword").value;
+      showToast("Running physical PDF stream redaction & generating Key Vault...");
+
+      const res = await fetch("/api/batch_deidentify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ date_mode: dateMode, password })
+      });
+      const data = await res.json();
+      if (data.error) {
+        showToast(`Error: ${data.error}`);
+        return;
+      }
+
+      const banner = document.getElementById("batchResultsBanner");
+      const summary = document.getElementById("batchResultsSummary");
+      const links = document.getElementById("batchDownloadLinks");
+      const presetSelect = document.getElementById("presetDeidSelect");
+
+      banner.classList.add("visible");
+      summary.textContent = `Processed ${data.processed_files.length} file(s) · Saved to ${data.output_dir}`;
+      links.innerHTML = "";
+      presetSelect.innerHTML = `<option value="">-- Or pick processed De-Identified PDF on disk --</option>`;
+
+      data.processed_files.forEach(pf => {
+        const a = document.createElement("a");
+        a.className = "btn btn-primary";
+        a.href = `/api/download/${encodeURIComponent(pf.deidentified_filename)}`;
+        a.textContent = `⬇ Download ${pf.deidentified_filename}`;
+        links.appendChild(a);
+
+        const opt = document.createElement("option");
+        opt.value = pf.deidentified_filename;
+        opt.textContent = `${pf.deidentified_filename} (${pf.patient_token})`;
+        opt.selected = true;
+        presetSelect.appendChild(opt);
+      });
+
+      const vaultLink = document.createElement("a");
+      vaultLink.className = "btn";
+      vaultLink.href = `/api/download/${encodeURIComponent(data.vault_filename)}`;
+      vaultLink.textContent = `🔑 Download Key Vault (${data.vault_filename})`;
+      links.appendChild(vaultLink);
+
+      showToast("Batch De-Identification complete!");
+    }
+
+    function fillSampleCloudText() {
+      const patTok = currentDoc ? currentDoc.patient_token_preview : "PAT-1D7030";
+      const code = patTok.split("-")[1] || "1D7030";
+      document.getElementById("cloudInputText").value =
+`Cloud Oncology Analysis Summary:
+- Patient Identifier : ${patTok}
+- Medical Record #   : MRN-${code}
+- Order Accession #  : ORD-${code}-01
+- Specimen ID        : SPEC-${code}-01
+- Ordering Physician : PHYS-${code}-01
+- Medical Facility   : FACILITY-${code}
+- Collection Date    : 2026-DATE-01
+- Report Date        : 2026-DATE-03
+- Key Actionable Alterations:
+  1. PALB2 rearrangement exon 4 (VAF 0.27% / 0.38%) -> Sensitive to Olaparib, Talazoparib
+  2. ATM K468fs*18 (VAF 49.7%) -> Consider germline follow-up`;
+    }
+
+    async function runReversal() {
+      const formData = new FormData();
+      const vFile = document.getElementById("revVaultFile").files[0];
+      const tFile = document.getElementById("revTargetFile").files[0];
+      const preset = document.getElementById("presetDeidSelect").value;
+      const pw = document.getElementById("revPassword").value;
+      const cloudText = document.getElementById("cloudInputText").value;
+
+      if (vFile) formData.append("vault_file", vFile);
+      if (tFile) formData.append("target_file", tFile);
+      if (preset && !tFile) formData.append("preset_deid_filename", preset);
+      if (pw) formData.append("password", pw);
+      if (cloudText) formData.append("cloud_text", cloudText);
+
+      const res = await fetch("/api/reverse", { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.error) {
+        showToast(`Error: ${data.error}`);
+        return;
+      }
+
+      const outArea = document.getElementById("cloudOutputText");
+      const dlBar = document.getElementById("reversalDownloadBar");
+      dlBar.innerHTML = "";
+
+      if (data.mode === "pdf") {
+        restoredPdfFilename = data.restored_filename;
+        restoredPage = 0;
+        restoredTotalPages = data.page_count || 1;
+        updateRestoredPdfPreview();
+
+        outArea.value =
+          `=== PDF REVERSAL COMPLETE ===\n` +
+          `Restored File  : ${data.restored_filename}\n` +
+          `Restored Spans : ${data.restored_count} regions across ${data.page_count} pages\n\n` +
+          `--- Restored Page 1 Text Sample ---\n${data.sample_text}`;
+
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "btn btn-primary";
+        dlBtn.href = `/api/download/${encodeURIComponent(data.restored_filename)}`;
+        dlBtn.textContent = `⬇ Download Restored PDF (${data.restored_filename})`;
+        dlBar.appendChild(dlBtn);
+        showToast(`Restored ${data.restored_count} PHI spans into PDF!`);
+      } else {
+        outArea.value = data.reidentified_text;
+        if (data.reidentified_filename) {
+          const dlBtn = document.createElement("a");
+          dlBtn.className = "btn btn-primary";
+          dlBtn.href = `/api/download/${encodeURIComponent(data.reidentified_filename)}`;
+          dlBtn.textContent = `⬇ Download Re-Identified File (${data.reidentified_filename})`;
+          dlBar.appendChild(dlBtn);
+        }
+        showToast(`Re-identified ${data.replaced_count} pseudonym token(s)!`);
+      }
+    }
+
+    function updateRestoredPdfPreview() {
+      if (!restoredPdfFilename) return;
+      const img = document.getElementById("restoredPdfImage");
+      img.style.display = "block";
+      img.src = `/api/preview_output_pdf/${encodeURIComponent(restoredPdfFilename)}/page/${restoredPage}?t=${Date.now()}`;
+      document.getElementById("restoredPageIndicator").textContent =
+        `Page ${restoredPage + 1} / ${restoredTotalPages}`;
+    }
+
+    function changeRestoredPage(delta) {
+      if (!restoredPdfFilename) return;
+      const next = restoredPage + delta;
+      if (next >= 0 && next < restoredTotalPages) {
+        restoredPage = next;
+        updateRestoredPdfPreview();
+      }
+    }
+
+    async function loadVaultInspector() {
+      const formData = new FormData();
+      const vf = document.getElementById("inspectVaultFile").files[0];
+      const pw = document.getElementById("inspectVaultPassword").value;
+      if (vf) formData.append("vault_file", vf);
+      if (pw) formData.append("password", pw);
+
+      const res = await fetch("/api/vault_inspect", { method: "POST", body: formData });
+      const data = await res.json();
+      const tbody = document.getElementById("vaultTableBody");
+      tbody.innerHTML = "";
+      if (data.error) {
+        document.getElementById("vaultInspectorHeader").textContent = data.error;
+        return;
+      }
+
+      currentVaultData = data;
+      document.getElementById("vaultInspectorHeader").textContent =
+        `Key Vault Crosswalk · ${data.documents.length} Document(s) · Date Mode: ${data.date_mode} · Created: ${data.created_at}`;
+
+      const presetSelect = document.getElementById("presetDeidSelect");
+      presetSelect.innerHTML = `<option value="">-- Or pick processed De-Identified PDF on disk --</option>`;
+
+      data.documents.forEach(doc => {
+        const opt = document.createElement("option");
+        opt.value = doc.deidentified_filename;
+        opt.textContent = `${doc.deidentified_filename} (${doc.patient_token})`;
+        presetSelect.appendChild(opt);
+
+        Object.entries(doc.entity_dictionary).forEach(([tok, orig]) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td style="font-weight:700;color:var(--brand);">${doc.patient_token}</td>
+            <td style="font-family:monospace;font-weight:600;">${tok}</td>
+            <td>${orig}</td>
+            <td>${doc.original_filename}</td>
+            <td>${doc.deidentified_filename}</td>
+            <td style="font-family:monospace;font-size:0.74rem;color:var(--text-muted);">${(doc.deidentified_sha256 || "").slice(0, 16)}...</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    function exportVaultCsv() {
+      if (!currentVaultData || !currentVaultData.documents) {
+        showToast("Load a Key Vault first");
+        return;
+      }
+      const rows = [["Patient_Token", "Pseudonym_Token", "Original_PHI_Value", "Original_Filename", "DeIdentified_Filename", "DeIdentified_SHA256"]];
+      currentVaultData.documents.forEach(doc => {
+        Object.entries(doc.entity_dictionary).forEach(([tok, orig]) => {
+          rows.push([doc.patient_token, tok, orig, doc.original_filename, doc.deidentified_filename, doc.deidentified_sha256]);
+        });
+      });
+      const csvContent = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "reid_crosswalk_export.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    fetchDocuments();
+    loadVaultInspector();
+  </script>
+</body>
+</html>
